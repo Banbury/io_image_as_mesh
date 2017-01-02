@@ -4,13 +4,14 @@ import os
 import sys
 import bpy
 from bpy_extras.io_utils import ImportHelper
+from bpy.props import CollectionProperty
 from io_image_as_mesh.image_as_mesh import create_mesh_from_image
 
 bl_info = {
     "name": "Image as Mesh Importer",
     "description": "Import Image as Mesh.",
     "author": "Banbury",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (2, 78, 0),
     "location": "File > Import",
     "wiki_url": "",
@@ -33,10 +34,15 @@ class ImageAsMeshOps(bpy.types.Operator, ImportHelper):
         options={'HIDDEN'}
     )
 
+    files = CollectionProperty(type=bpy.types.PropertyGroup)
+
     def execute(self, context):
-        path = self.filepath
-        img = bpy.data.images.load(path, check_existing=True)
-        create_mesh_from_image(img)
+        dir = os.path.dirname(self.filepath)
+
+        for f in self.files:
+            path = os.path.join(dir, f.name)
+            img = bpy.data.images.load(path, check_existing=True)
+            create_mesh_from_image(img)
 
         return {'FINISHED'}
 

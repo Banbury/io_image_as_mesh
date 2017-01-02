@@ -11,14 +11,16 @@ File/User Preferences/Add-ons/Install from file.
 
 ## Usage
 
-Import an image with File/Import/Image As Mesh.
+Import an image with File/Import/Image As Mesh. Multiple files can be imported at the same time.
 
 Currently only PNGs are allowed. Images without alpha information (like JPGs) can be imported with
 File/Import/Images as Planes.
 
+> If you cannot see the image, change the render mode to 'Blender Render' and change the viewport shading to 'Texture'.
+
 ## Implementation details
 
-The add-on uses the Marching Square algorithm to create a polygon around the non-transparent parts of the imported
+The add-on uses the Marching Squares algorithm to create a polygon around the non-transparent parts of the imported
 image.
 Then the polygon is reduced with the Ramer-Douglas-Peucker algorithm.
 Blender's bmesh.ops.triangle_fill is used to create the mesh from the polygon.
