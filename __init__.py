@@ -11,7 +11,7 @@ bl_info = {
     "name": "Image as Mesh Importer",
     "description": "Import Image as Mesh.",
     "author": "Banbury",
-    "version": (1, 0, 1),
+    "version": (1, 0, 2),
     "blender": (2, 78, 0),
     "location": "File > Import",
     "wiki_url": "",

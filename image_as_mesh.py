@@ -33,6 +33,14 @@ def create_mesh_from_image(img):
 
     create_sprite(poly, img)
 
+    # Switch to textured shading
+    for area in bpy.context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for space in area.spaces:
+                if space.type == 'VIEW_3D' and space.viewport_shade != 'TEXTURED' and \
+                                space.viewport_shade != 'RENDERED' and \
+                                space.viewport_shade != 'MATERIAL':
+                    space.viewport_shade = 'TEXTURED'
 
 def create_sprite(poly, img):
     w = img.size[0]
@@ -91,6 +99,13 @@ def create_sprite(poly, img):
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
+    mat = create_blender_material(obj, img)
+    create_cycles_material(mat, img)
+
+    if scene.render.engine != 'CYCLES':
+        mat.use_nodes = False
+
+def create_blender_material(obj, img):
     tex = bpy.data.textures.new('ColorTex', type = 'IMAGE')
     tex.image = img
 
@@ -107,5 +122,26 @@ def create_sprite(poly, img):
     texslot.use_map_density = True
     texslot.mapping = 'FLAT'
     texslot.use_map_alpha = True
+
+    return mat
+
+def create_cycles_material(mat, img):
+    mat.use_nodes = True
+
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+
+    for n in nodes:
+        nodes.remove(n)
+
+    tex = nodes.new("ShaderNodeTexImage")
+    tex.image = img
+
+    diff = nodes.new("ShaderNodeBsdfDiffuse")
+
+    out = nodes.new('ShaderNodeOutputMaterial')
+
+    links.new(tex.outputs[0], diff.inputs[0])
+    links.new(diff.outputs[0], out.inputs[0])
 
 
