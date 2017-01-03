@@ -111,6 +111,8 @@ def create_blender_material(obj, img):
 
     mat = bpy.data.materials.new(name="Material")
     mat.use_transparency = True
+    mat.emit = 1.0
+    mat.alpha = 0.0
     obj.data.materials.append(mat)
 
     texslot = mat.texture_slots.add()
