@@ -4,7 +4,7 @@ from itertools import *
 from io_image_as_mesh.rdp import rdp
 from io_image_as_mesh.marching_squares import create_polygon
 
-def create_mesh_from_image(img):
+def create_mesh_from_image(img, subdivide):
     pixels = img.pixels
     data = []
 
@@ -31,7 +31,7 @@ def create_mesh_from_image(img):
 
     poly = rdp(create_polygon(data), 1.5)
 
-    create_sprite(poly, img)
+    create_sprite(poly, img, subdivide)
 
     # Switch to textured shading
     for area in bpy.context.screen.areas:
@@ -42,7 +42,7 @@ def create_mesh_from_image(img):
                                 space.viewport_shade != 'MATERIAL':
                     space.viewport_shade = 'TEXTURED'
 
-def create_sprite(poly, img):
+def create_sprite(poly, img, subdivide):
     w = img.size[0]
     h = img.size[1]
 
@@ -72,7 +72,7 @@ def create_sprite(poly, img):
     bm.verts.index_update()
 
     triangle_fill = bmesh.ops.triangle_fill(bm, edges=bm.edges[:], use_dissolve=False, use_beauty=True)
-    if triangle_fill:
+    if subdivide and triangle_fill:
         average_edge_cuts(bm,obj)
         triangulate(bm,obj)
         smooth_verts(bm,obj)
@@ -83,8 +83,8 @@ def create_sprite(poly, img):
         triangulate(bm,obj)
         smooth_verts(bm,obj)
 
-        if hasattr(bm.verts, "ensure_lookup_table"):
-            bm.verts.ensure_lookup_table()
+    if hasattr(bm.verts, "ensure_lookup_table"):
+        bm.verts.ensure_lookup_table()
 
     uvtex = bm.faces.layers.tex.new("UVMap")
     uv_lay = bm.loops.layers.uv.new("UVMap")

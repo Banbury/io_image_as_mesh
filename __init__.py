@@ -36,13 +36,15 @@ class ImageAsMeshOps(bpy.types.Operator, ImportHelper):
 
     files = CollectionProperty(type=bpy.types.PropertyGroup)
 
+    subdivide = bpy.props.BoolProperty(name="Subdivide", description="Divide mesh into triangles (best for convex shapes).")
+
     def execute(self, context):
         dir = os.path.dirname(self.filepath)
 
         for f in self.files:
             path = os.path.join(dir, f.name)
             img = bpy.data.images.load(path, check_existing=True)
-            create_mesh_from_image(img)
+            create_mesh_from_image(img, self.subdivide)
 
         return {'FINISHED'}
 
