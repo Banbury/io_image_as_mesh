@@ -31,3 +31,11 @@ Finally uv coordintes are calculated, a material is created and the mesh is scal
 The [RDP library](https://github.com/sebleier/RDP) licensed under the BSD.
 
 Everything else is GPL licensed.
+
+## Changelog
+
+**v1.1.0:**
+* Added support for Cycles material.
+* Borrowed triangulation algorithm from CoaTools.
+    * Triangulation can be turned on and off in the file dialog.
+    * Best used with convex shapes.
