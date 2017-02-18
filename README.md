@@ -9,6 +9,8 @@ to its resolution in inches.
 Download the repository as Zip file. Then install the add-on in Blender with
 File/User Preferences/Add-ons/Install from file.
 
+Rename the directory in the 'addons' folder to 'io_image_as_mesh'. 
+
 ## Usage
 
 Import an image with File/Import/Image As Mesh. Multiple files can be imported at the same time.
