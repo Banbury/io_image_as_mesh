@@ -4,7 +4,8 @@ from itertools import *
 from io_image_as_mesh.rdp import rdp
 from io_image_as_mesh.marching_squares import create_polygon
 
-def create_mesh_from_image(img, subdivide):
+
+def create_mesh_from_image(img):
     pixels = img.pixels
     data = []
 
@@ -31,18 +32,12 @@ def create_mesh_from_image(img, subdivide):
 
     poly = rdp(create_polygon(data), 1.5)
 
-    create_sprite(poly, img, subdivide)
+    obj = create_sprite(poly, img)
 
-    # Switch to textured shading
-    for area in bpy.context.screen.areas:
-        if area.type == 'VIEW_3D':
-            for space in area.spaces:
-                if space.type == 'VIEW_3D' and space.viewport_shade != 'TEXTURED' and \
-                                space.viewport_shade != 'RENDERED' and \
-                                space.viewport_shade != 'MATERIAL':
-                    space.viewport_shade = 'TEXTURED'
+    return obj
 
-def create_sprite(poly, img, subdivide):
+
+def create_sprite(poly, img):
     w = img.size[0]
     h = img.size[1]
 
@@ -51,7 +46,7 @@ def create_sprite(poly, img, subdivide):
     points = []
     edges = []
     for i, p in enumerate(poly):
-        points.append([p[0] / w - 0.5 , 0, p[1] / h - 0.5])
+        points.append([p[0] / w - 0.5, 0, p[1] / h - 0.5])
 
         if i < len(poly) - 2:
             edges.append((i, i + 1))
@@ -71,17 +66,7 @@ def create_sprite(poly, img, subdivide):
     bm = bmesh.from_edit_mesh(obj.data)
     bm.verts.index_update()
 
-    triangle_fill = bmesh.ops.triangle_fill(bm, edges=bm.edges[:], use_dissolve=False, use_beauty=True)
-    if subdivide and triangle_fill:
-        average_edge_cuts(bm,obj)
-        triangulate(bm,obj)
-        smooth_verts(bm,obj)
-        collapse_short_edges(bm,obj)
-        smooth_verts(bm,obj)
-        clean_verts(bm,obj)
-        smooth_verts(bm,obj)
-        triangulate(bm,obj)
-        smooth_verts(bm,obj)
+    bmesh.ops.triangle_fill(bm, edges=bm.edges[:], use_dissolve=False, use_beauty=True)
 
     if hasattr(bm.verts, "ensure_lookup_table"):
         bm.verts.ensure_lookup_table()
@@ -118,8 +103,11 @@ def create_sprite(poly, img, subdivide):
     if scene.render.engine != 'CYCLES':
         mat.use_nodes = False
 
+    return obj
+
+
 def create_blender_material(obj, img):
-    tex = bpy.data.textures.new('ColorTex', type = 'IMAGE')
+    tex = bpy.data.textures.new('ColorTex', type='IMAGE')
     tex.image = img
 
     mat = bpy.data.materials.new(name="Material")
@@ -140,6 +128,7 @@ def create_blender_material(obj, img):
 
     return mat
 
+
 def create_cycles_material(mat, img):
     mat.use_nodes = True
 
@@ -158,104 +147,3 @@ def create_cycles_material(mat, img):
 
     links.new(tex.outputs[0], diff.inputs[0])
     links.new(diff.outputs[0], out.inputs[0])
-
-# functions borrowed from CoaTools
-def average_edge_cuts(bm,obj,cuts=1):
-    ### collapse short edges
-    edges_len_average = 0
-    edges_count = 0
-    shortest_edge = 10000
-    for edge in bm.edges:
-        if True:#edge.is_boundary:
-            edges_count += 1
-            length = edge.calc_length()
-            edges_len_average += length
-            if length < shortest_edge:
-                shortest_edge = length
-    edges_len_average = edges_len_average/edges_count
-
-    subdivide_edges = []
-    for edge in bm.edges:
-        cut_count = int(edge.calc_length()/shortest_edge)*cuts
-        if cut_count < 0:
-            cut_count = 0
-        if not edge.is_boundary:
-            subdivide_edges.append([edge,cut_count])
-    for edge in subdivide_edges:
-        bmesh.ops.subdivide_edges(bm,edges=[edge[0]],cuts=edge[1])
-        bmesh.update_edit_mesh(obj.data)
-
-def triangulate(bm,obj):
-    bmesh.ops.triangulate(bm,faces=bm.faces)
-    bmesh.update_edit_mesh(obj.data)
-
-def smooth_verts(bm,obj):
-    ### smooth verts
-    smooth_verts = []
-    for vert in bm.verts:
-        if not vert.is_boundary:
-            smooth_verts.append(vert)
-    for i in range(50):
-        #bmesh.ops.smooth_vert(bm,verts=smooth_verts,factor=1.0,use_axis_x=True,use_axis_y=True,use_axis_z=True)
-        bmesh.ops.smooth_vert(bm,verts=smooth_verts,factor=1.0,use_axis_x=True,use_axis_y=True,use_axis_z=True)
-    bmesh.update_edit_mesh(obj.data)
-
-def clean_verts(bm,obj):
-    ### find corrupted faces
-    faces = []
-    for face in bm.faces:
-        i = 0
-        for edge in face.edges:
-            if not edge.is_manifold:
-                i += 1
-            if i == len(face.edges):
-                faces.append(face)
-    bmesh.ops.delete(bm,geom=faces,context=5)
-
-    edges = []
-    for face in bm.faces:
-        i = 0
-        for vert in face.verts:
-            if not vert.is_manifold and not vert.is_boundary:
-                i+=1
-            if i == len(face.verts):
-                for edge in face.edges:
-                    if edge not in edges:
-                        edges.append(edge)
-    bmesh.ops.collapse(bm,edges=edges)
-
-    bmesh.update_edit_mesh(obj.data)
-    for vert in bm.verts:
-        if not vert.is_boundary:
-            vert.select = False
-
-    verts = []
-    for vert in bm.verts:
-        if len(vert.link_edges) in [3,4] and not vert.is_boundary:
-            verts.append(vert)
-    bmesh.ops.dissolve_verts(bm,verts=verts)
-    bmesh.update_edit_mesh(obj.data)
-
-def collapse_short_edges(bm,obj,threshold=1):
-    ### collapse short edges
-    edges_len_average = 0
-    edges_count = 0
-    shortest_edge = 10000
-    for edge in bm.edges:
-        if True:
-            edges_count += 1
-            length = edge.calc_length()
-            edges_len_average += length
-            if length < shortest_edge:
-                shortest_edge = length
-    edges_len_average = edges_len_average/edges_count
-
-    verts = []
-    for vert in bm.verts:
-        if not vert.is_boundary:
-            verts.append(vert)
-    bmesh.update_edit_mesh(obj.data)
-
-    bmesh.ops.remove_doubles(bm,verts=verts,dist=edges_len_average*threshold)
-
-    bmesh.update_edit_mesh(obj.data)

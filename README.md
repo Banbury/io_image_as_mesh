@@ -14,11 +14,12 @@ Rename the directory in the 'addons' folder to 'io_image_as_mesh'.
 ## Usage
 
 Import an image with File/Import/Image As Mesh. Multiple files can be imported at the same time.
+Check `Subdivide` to create a mesh with mostly equally sized triangles. 
 
-Currently only PNGs are allowed. Images without alpha information (like JPGs) can be imported with
-File/Import/Images as Planes.
+Currently only PNGs are allowed. Images without alpha information (like JPGs) should be imported with
+with the 'Images as Planes' addon.
 
-> If you cannot see the image, change the render mode to 'Blender Render' and change the viewport shading to 'Texture'.
+> If you cannot see the image, change the viewport shading to 'Texture'.
 
 ## Implementation details
 
@@ -35,6 +36,10 @@ The [RDP library](https://github.com/sebleier/RDP) licensed under the BSD.
 Everything else is GPL licensed.
 
 ## Changelog
+
+**v1.2.0:**
+* Better subdivision with Subdivision and Decimate modifiers
+* Removed code from CoaTools
 
 **v1.1.0:**
 * Added support for Cycles material.
