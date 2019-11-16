@@ -11,8 +11,8 @@ bl_info = {
     "name": "Image as Mesh Importer",
     "description": "Import Image as Mesh.",
     "author": "Banbury",
-    "version": (1, 2, 0),
-    "blender": (2, 79, 0),
+    "version": (1, 3, 0),
+    "blender": (2, 80, 0),
     "location": "File > Import",
     "wiki_url": "",
     "category": "Import-Export"}
@@ -28,16 +28,16 @@ class ImageAsMeshOps(bpy.types.Operator, ImportHelper):
     bl_options = {'REGISTER', 'UNDO', 'PRESET'}
 
     # File type filter in file browser
-    filename_ext = ".png"
+    filename_ext: ".png"
 
-    filter_glob = bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(
         default="*.png",
         options={'HIDDEN'}
     )
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
-    subdivide = bpy.props.BoolProperty(
+    subdivide: bpy.props.BoolProperty(
         name="Subdivide", description="Creates smaller triangles.")
 
     def execute(self, context):
@@ -69,14 +69,14 @@ def menu_import(self, context):
 
 def register():
     """Register Menu Listing"""
-    bpy.utils.register_module(__package__)
-    bpy.types.INFO_MT_file_import.append(menu_import)
+    bpy.utils.register_class(ImageAsMeshOps)
+    bpy.types.TOPBAR_MT_file_import.append(menu_import)
 
 
 def unregister():
     """Unregister Menu Listing"""
-    bpy.utils.unregister_module(__package__)
-    bpy.types.INFO_MT_file_import.remove(menu_import)
+    bpy.utils.unregister_class(ImageAsMeshOps)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_import)
 
 
 if __name__ == "__main__":

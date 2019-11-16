@@ -57,25 +57,24 @@ def create_sprite(poly, img):
     mesh_data.update()
 
     obj = bpy.data.objects.new(img.name, mesh_data)
-    scene.objects.link(obj)
-    obj.select = True
-    scene.objects.active = obj
+    scene.collection.objects.link(obj)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
 
     bm = bmesh.from_edit_mesh(obj.data)
     bm.verts.index_update()
 
-    bmesh.ops.triangle_fill(bm, edges=bm.edges[:], use_dissolve=False, use_beauty=True)
+    bmesh.ops.triangle_fill(
+        bm, edges=bm.edges[:], use_dissolve=False, use_beauty=True)
 
     if hasattr(bm.verts, "ensure_lookup_table"):
         bm.verts.ensure_lookup_table()
 
-    uvtex = bm.faces.layers.tex.new("UVMap")
     uv_lay = bm.loops.layers.uv.new("UVMap")
 
     for face in bm.faces:
-        face[uvtex].image = img
         for loop in face.loops:
             uv = loop[uv_lay].uv
             index = loop.vert.index
@@ -100,9 +99,6 @@ def create_sprite(poly, img):
     mat = create_blender_material(obj, img)
     create_cycles_material(mat, img)
 
-    if scene.render.engine != 'CYCLES':
-        mat.use_nodes = False
-
     return obj
 
 
@@ -111,20 +107,7 @@ def create_blender_material(obj, img):
     tex.image = img
 
     mat = bpy.data.materials.new(name="Material")
-    mat.use_transparency = True
-    mat.emit = 1.0
-    mat.alpha = 0.0
     obj.data.materials.append(mat)
-
-    texslot = mat.texture_slots.add()
-    texslot.texture = tex
-    texslot.texture_coords = 'UV'
-    texslot.use_map_color_diffuse = True
-    texslot.use_map_color_emission = True
-    texslot.emission_color_factor = 0.5
-    texslot.use_map_density = True
-    texslot.mapping = 'FLAT'
-    texslot.use_map_alpha = True
 
     return mat
 

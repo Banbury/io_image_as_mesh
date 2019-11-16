@@ -1,6 +1,6 @@
 # Import image as mesh
 
-This is an add-on for [Blender](http://www.blender.org), that imports images as meshes. If the image contains alpha
+This is an add-on for [Blender 2.80](http://www.blender.org), that imports images as meshes. If the image contains alpha
 transparency, the mesh will have the shape of the opaque parts of the image. The resulting image is scaled according
 to its resolution in inches.
 
@@ -9,7 +9,7 @@ to its resolution in inches.
 Download the repository as Zip file. Then install the add-on in Blender with
 File/User Preferences/Add-ons/Install from file.
 
-Rename the directory in the 'addons' folder to 'io_image_as_mesh'. 
+Rename the directory in the folder `C:\Users\<username>\AppData\Roaming\Blender Foundation\Blender\2.80\scripts\addons` to `io_image_as_mesh`. 
 
 ## Usage
 
@@ -19,7 +19,7 @@ Check `Subdivide` to create a mesh with mostly equally sized triangles.
 Currently only PNGs are allowed. Images without alpha information (like JPGs) should be imported with
 with the 'Images as Planes' addon.
 
-> If you cannot see the image, change the viewport shading to 'Texture'.
+> If you cannot see the image, change the viewport shading to 'Look Dev' or 'Rendered'.
 
 ## Implementation details
 
@@ -31,11 +31,14 @@ Finally uv coordintes are calculated, a material is created and the mesh is scal
 
 ## License information
 
-The [RDP library](https://github.com/sebleier/RDP) is licensed under the BSD.
+The [RDP library](https://github.com/sebleier/RDP) is licensed under the MIT.
 
 Everything else is GPL licensed.
 
 ## Changelog
+**v1.3.0:**
+* Updated for Blender 2.80
+    * If you're still using Blender 2.79, use the previous version.
 
 **v1.2.0:**
 * Better subdivision with Subdivision and Decimate modifiers
