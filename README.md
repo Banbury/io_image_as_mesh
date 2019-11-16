@@ -31,7 +31,7 @@ Finally uv coordintes are calculated, a material is created and the mesh is scal
 
 ## License information
 
-The [RDP library](https://github.com/sebleier/RDP) licensed under the BSD.
+The [RDP library](https://github.com/sebleier/RDP) is licensed under the BSD.
 
 Everything else is GPL licensed.
 
