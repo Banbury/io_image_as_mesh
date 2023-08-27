@@ -11,8 +11,8 @@ bl_info = {
     "name": "Image as Mesh Importer",
     "description": "Import Image as Mesh.",
     "author": "Banbury",
-    "version": (1, 3, 0),
-    "blender": (2, 80, 0),
+    "version": (1, 4, 0),
+    "blender": (3, 51, 0),
     "location": "File > Import",
     "wiki_url": "",
     "category": "Import-Export"}
@@ -28,7 +28,7 @@ class ImageAsMeshOps(bpy.types.Operator, ImportHelper):
     bl_options = {'REGISTER', 'UNDO', 'PRESET'}
 
     # File type filter in file browser
-    filename_ext: ".png"
+    # filename_ext: ".png"
 
     filter_glob: bpy.props.StringProperty(
         default="*.png",
